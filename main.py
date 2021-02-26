@@ -53,7 +53,7 @@ def Gk(x, k, n):
     return G
 
 
-Gk(x, k, n)
+#  Gk(x, k, n)
 
 
 def gg7(x):
@@ -142,38 +142,18 @@ def gg19(x):
                                     x[9] ** 2 - 1) ** 2)
 
 
-x0 = np.array([1.0, 1.0, 1.0, -1.0, 1.0, 1.0, 1.0, -1.0, -1.0, 1.0, 1.0, -1.0, 1.0, -1.0, -1.0, 1.0, 1.0, 1.0, 1.0, 1])
-res = minimize(gg19, x0, method='nelder-mead', options={'xtol': 1e-2, 'adaptive': True})
-while (res.fun - res.x[-1]) > eps:
-    k *= 2
-    res = minimize(gg19, res.x, method='nelder-mead', options={'xtol': 1e-2, 'adaptive': True})
-res.x = np.around(res.x)
-print(res.x)
-res.x = res.x[::-1]
-degree = 0
-for i in range(1, n + 1, 1):
-    if res.x[i] == -1:
-        degree += 2 ** (i - 1)
-print(degree)
-
-
-def create_x(x, num):
+def create_x(x, degree):
     for i in range(len(x)):
-        if num >= pow(2, i) and (num // pow(2, i)) % 2 == 1:
-            x[-1 - i] = -1
+        if degree >= pow(2, i) and (degree // pow(2, i)) % 2 == 1:
+            x[-1-i] = -1
         else:
-            x[-1 - i] = 1
+            x[-1-i] = 1
     return x
-
-
-arr_x = np.ones(n)
-arr_x = create_x(x=arr_x, num=degree)
-print(arr_x)
 
 
 def createOneTypeCheck(arr):
     for i in range(len(arr)):
-        if (arr[i] > 1):
+        if arr[i] > 1:
             return 0
     return 1
 
@@ -181,49 +161,71 @@ def createOneTypeCheck(arr):
 def count(arr):
     boof_x = np.ones(len(arr) - 1)
     for j in range(n - 1):
-        sum = 0
+        summa = 0
         for i in range(n - j - 1):
-            sum += arr_x[i] * arr_x[i + j + 1]
-        boof_x[j] = abs(sum)
+            summa += arr[i] * arr[i + j + 1]
+        boof_x[j] = abs(summa)
     return boof_x
 
 
-arr_x = create_x(x=arr_x, num=degree)
-boof_x = count(arr=arr_x)
-z = n - 1
-check = createOneTypeCheck(arr=boof_x)
-while (check == 0):
-    if arr_x[z] == -1:
-        z -= 1
-        continue
-    else:
-        arr_x[z] *= -1
-    now = count(arr=arr_x)
-    if (max(boof_x) > max(now)):
-        boof_x = now.copy()
-        print(*arr_x, boof_x, sep=', ')
-        check = createOneTypeCheck(arr=boof_x)
-        z = n - 1
-    else:
-        arr_x[z] *= -1
-        z -= 1
+def dir_search(degree):
+    vec_x = np.ones(n)
+    vec_x = create_x(vec_x, degree)
+    boof_x = count(vec_x)
+    z = n - 1
+    check = createOneTypeCheck(boof_x)
+    while check == 0:
+        if vec_x[z] == -1:
+            z -= 1
+            continue
+        else:
+            vec_x[z] *= -1
+        now = count(vec_x)
+        if max(boof_x) > max(now):
+            boof_x = now.copy()
+            print(*vec_x, boof_x, sep=', ')
+            check = createOneTypeCheck(boof_x)
+            z = n - 1
+        else:
+            vec_x[z] *= -1
+            z -= 1
 
-arr_x = create_x(x=arr_x, num=degree)
-boof_x = count(arr=arr_x)
-z = n - 1
-check = createOneTypeCheck(arr=boof_x)
-while (check == 0):
-    if arr_x[z] == 1:
-        z -= 1
-        continue
-    else:
-        arr_x[z] *= -1
-    now = count(arr=arr_x)
-    if (max(boof_x) > max(now)):
-        boof_x = now.copy()
-        print(*arr_x, boof_x, sep=', ')
-        check = createOneTypeCheck(arr=boof_x)
-        z = n - 1
-    else:
-        arr_x[z] *= -1
-        z -= 1
+    vec_x = np.ones(n)
+    vec_x = create_x(vec_x, degree)
+    boof_x = count(vec_x)
+    z = n - 1
+    check = createOneTypeCheck(boof_x)
+    while check == 0:
+        if vec_x[z] == 1:
+            z -= 1
+            continue
+        else:
+            vec_x[z] *= -1
+        now = count(vec_x)
+        if max(boof_x) > max(now):
+            boof_x = now.copy()
+            print(*vec_x, boof_x, sep=', ')
+            check = createOneTypeCheck(boof_x)
+            z = n - 1
+        else:
+            vec_x[z] *= -1
+            z -= 1
+
+
+x_0 = np.array([1.0, 1.0, 1.0, -1.0, 1.0, 1.0, 1.0, -1.0, -1.0, 1.0, 1.0, -1.0, 1.0, -1.0, -1.0, 1.0, 1.0, 1.0, 1.0, 1])
+res = minimize(gg19, x_0, method='nelder-mead', options={'xtol': 1e-2, 'adaptive': True})
+while (res.fun - res.x[-1]) > eps:
+    k *= 2
+    res = minimize(gg19, res.x, method='nelder-mead', options={'xtol': 1e-2, 'adaptive': True})
+    print(res.fun - res.x[-1], k)
+res.x = np.around(res.x)
+print(res.x)
+res.x = res.x[::-1]
+num = 0
+for i in range(1, n + 1, 1):
+    if res.x[i] == -1:
+        num += 2 ** (i - 1)
+print(num)
+
+
+dir_search(num)
