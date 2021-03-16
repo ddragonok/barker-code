@@ -3,7 +3,6 @@ import numpy as np
 from scipy.optimize import minimize
 
 n = 11
-k = 1
 eps = 0.01
 x = sym.symbols('x[:80]')
 
@@ -58,10 +57,10 @@ def dir_search(res_x):
             if vec_x[z] == -1:
                 z -= 1
                 continue
+            else:
+                vec_x[z] *= -1
         except IndexError:
             break
-        else:
-            vec_x[z] *= -1
         now = count(vec_x)
         if max(boof_x) >= max(now):
             boof_x = now.copy()
@@ -81,10 +80,10 @@ def dir_search(res_x):
             if vec_x[z] == 1:
                 z -= 1
                 continue
+            else:
+                vec_x[z] *= -1
         except IndexError:
             break
-        else:
-            vec_x[z] *= -1
         now = count(vec_x)
         if max(boof_x) >= max(now):
             boof_x = now.copy()
@@ -114,16 +113,28 @@ def gg50(x, k):
 
 
 k = 1
-x_0 = np.ones(12)
-# x_0 = np.array([1, 1, 1, -1, 1, 1, 1, -1, -1, 1, -1, 1])
-res = minimize(gg11, x_0, args=k, method='nelder-mead', options={'xtol': 1e-2})
+x_0 = [-1, -1, 1, -1, -1, -1, 1, -1, -1, 1, -1, 1, 1, -1, -1, -1, -1, -1, 1, -1, 1, 1, -1, -1, 1, 1, 1, -1, 1, 1, -1, -1, -1, -1, 1, 1, -1, 1, -1, 1, -1, 1, -1, -1, -1, 1]
+
+print("Начальный вектор:  ", end="", sep="")
+print(*x_0, sep=", ")
+print("Итерации:")
+check1 = x_0.copy()
+n = len(x_0) - 1
+
+res = minimize(gg45, x_0, args=k, method='nelder-mead', options={'xtol': 1e-2})
+print('alpha*k =', res.fun - res.x[-1], '   k =', k, '   x(n+1) =', res.x[-1])
 while (res.fun - res.x[-1]) > eps:
     k *= 2
-    res = minimize(gg11, res.x, args=k, method='nelder-mead', options={'xtol': 1e-2})
-    print(res.fun - res.x[-1], k)
+    res = minimize(gg45, res.x, args=k, method='nelder-mead', options={'xtol': 1e-2})
+    print('alpha*k =', res.fun - res.x[-1], '   k =', k, '   x(n+1) =', res.x[-1])
 res.x = np.around(res.x)
-for i in res.x:
-    print(int(i), ',', end='', sep='')
-
+print("Итоговый вектор: ", end="")
+for i in range(len(res.x)):
+    if (i != len(res.x) - 1):
+        print(int(res.x[i]), ', ', end='', sep='')
+    else:
+        print(int(res.x[i]))
+print("Минимум =", int(res.x[-1]))
+print(check1[:-1] == res.x[:-1])
 
 dir_search(res.x)
